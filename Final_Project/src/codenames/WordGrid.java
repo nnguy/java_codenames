@@ -17,6 +17,9 @@ public class WordGrid implements Serializable{
     private String[][] gridWords;
 
     public WordGrid() {
+    	/*
+    	 * The wordGrid serves as the grid that will be used in the client and in the server
+    	 * */
         words = new ArrayList<>();
         gridColors = new Color[5][5];
         gridWords = new String[5][5];
