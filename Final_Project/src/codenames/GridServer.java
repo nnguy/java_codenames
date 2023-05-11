@@ -17,6 +17,8 @@ public class GridServer {
     private static ServerSocket serverSocket;
     private static Socket clientSocket;
     private static JPanel gridPanel;
+    private static JLabel clueLabel;
+    private static ObjectInputStream inputStream;
 
     public static void main(String[] args) {
         wordGrid = new WordGrid();
@@ -26,14 +28,22 @@ public class GridServer {
         frame = new JFrame("Grid Server");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
+        frame.setLayout(new BorderLayout());
 
         gridPanel = new JPanel(new GridLayout(5, 5));
         displayGrid();
 
-        frame.add(gridPanel);
+        frame.add(gridPanel, BorderLayout.CENTER);
+
+        clueLabel = new JLabel("Waiting for clue...");
+        clueLabel.setFont(new Font(clueLabel.getFont().getName(), clueLabel.getFont().getStyle(), 20)); // set font size
+        clueLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+        frame.add(clueLabel, BorderLayout.SOUTH);
+
         frame.setVisible(true);
 
         setupServer();
+        receiveClue();
     }
 
     private static void setupServer() {
@@ -46,29 +56,30 @@ public class GridServer {
 
             ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             outputStream.writeObject(wordGrid);
-
-            clientSocket.close();
-            serverSocket.close();
+            
+            inputStream = new ObjectInputStream(clientSocket.getInputStream());  // Add this line
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /*
-    private static void displayGrid() {
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                JButton button = new JButton(wordGrid.getGridWords()[i][j]);
-                button.setBackground(Color.WHITE);
-                button.setOpaque(true); // Ensure the button's background is visible
-                button.setBorderPainted(false); // Remove the button border for a cleaner look
-                button.addActionListener(new GridButtonListener(i, j));
-                gridPanel.add(button);
+    private static void receiveClue() {
+        new Thread(() -> {
+            while (true) {  // Add this line
+                try {
+                    String clue = (String) inputStream.readObject();
+                    int number = inputStream.readInt();
+
+                    clueLabel.setText("The clue is: " + clue + " " + number);
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
-        }
+        }).start();
     }
-    */
+
+
     private static void displayGrid() {
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
