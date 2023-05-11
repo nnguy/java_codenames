@@ -16,6 +16,7 @@ public class GridClient {
     private static WordGrid wordGrid;
     private static Socket socket;
     private static JPanel gridPanel;
+    private static ObjectOutputStream outputStream;
 
     public static void main(String[] args) {
         connectToServer();
@@ -38,12 +39,13 @@ public class GridClient {
     }
 
     private static void connectToServer() {
-        try {
-            socket = new Socket("localhost", 8080);
-            System.out.println("Connected to server!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    	try {
+    	    socket = new Socket("localhost", 8080);
+    	    outputStream = new ObjectOutputStream(socket.getOutputStream()); // Add this line
+    	    System.out.println("Connected to server!");
+    	} catch (IOException e) {
+    	    e.printStackTrace();
+    	}
     }
 
     private static void initializeGridFromServer() {
@@ -98,7 +100,6 @@ public class GridClient {
 
     private static void sendClue(String clue, int number) {
         try {
-            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             outputStream.writeObject(clue);
             outputStream.writeInt(number);
             outputStream.flush();
@@ -106,7 +107,6 @@ public class GridClient {
             e.printStackTrace();
         }
     }
-    
     static class ButtonEnableDocumentListener implements DocumentListener {
         private JTextField textField;
         private JComboBox<Integer> comboBox;

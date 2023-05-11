@@ -18,6 +18,7 @@ public class GridServer {
     private static Socket clientSocket;
     private static JPanel gridPanel;
     private static JLabel clueLabel;
+    private static ObjectInputStream inputStream;
 
     public static void main(String[] args) {
         wordGrid = new WordGrid();
@@ -35,6 +36,8 @@ public class GridServer {
         frame.add(gridPanel, BorderLayout.CENTER);
 
         clueLabel = new JLabel("Waiting for clue...");
+        clueLabel.setFont(new Font(clueLabel.getFont().getName(), clueLabel.getFont().getStyle(), 20)); // set font size
+        clueLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
         frame.add(clueLabel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
@@ -53,6 +56,8 @@ public class GridServer {
 
             ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             outputStream.writeObject(wordGrid);
+            
+            inputStream = new ObjectInputStream(clientSocket.getInputStream());  // Add this line
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -61,19 +66,13 @@ public class GridServer {
 
     private static void receiveClue() {
         new Thread(() -> {
-            try {
-                ObjectInputStream inputStream = new ObjectInputStream(clientSocket.getInputStream());
-                String clue = (String) inputStream.readObject();
-                int number = inputStream.readInt();
-
-                clueLabel.setText("The clue is: " + clue + " " + number);
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-            } finally {
+            while (true) {  // Add this line
                 try {
-                    clientSocket.close();
-                    serverSocket.close();
-                } catch (IOException e) {
+                    String clue = (String) inputStream.readObject();
+                    int number = inputStream.readInt();
+
+                    clueLabel.setText("The clue is: " + clue + " " + number);
+                } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
