@@ -31,7 +31,7 @@ public class Codenames {
 
     //new main method 
     public static void main(String[] args) {
-        frame = new JFrame("Codenames");
+        frame = new JFrame("Codenames - Teams");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -48,7 +48,7 @@ public class Codenames {
         JLabel messageLabel = new JLabel("After choosing one of these options, run Spymaster.java to begin the game!", SwingConstants.CENTER);
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
 
-        JButton uploadButton = new JButton("Upload my own words");
+        JButton uploadButton = new JButton("Custom words! (Upload my own words - each word should be in a separate line)");
         uploadButton.setPreferredSize(preferredSize);
         uploadButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
@@ -64,7 +64,7 @@ public class Codenames {
                     }
                     if(words.size() < 25) {
                         // Show an error message
-                        JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words!", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         wordGrid = new WordGrid(words.toArray(new String[0]));
                         messageLabel.setVisible(true);
@@ -77,7 +77,7 @@ public class Codenames {
             }
         });
 
-        JButton randomButton = new JButton("Use random words");
+        JButton randomButton = new JButton("Any words! (Get words from a hardcoded dictionary of over 500 words)");
         randomButton.setPreferredSize(preferredSize);
         randomButton.addActionListener(e -> {
             wordGrid = new WordGrid();
