@@ -23,20 +23,24 @@ public class WordGrid implements Serializable{
         gridWords = new String[5][5];
     }
 
-    //old initializeGrid - may be deleted 
-    /*
-    public void initializeGrid() {
-        ArrayList<String> wordList = new ArrayList<>();
-        Collections.addAll(wordList, WORDS);
-        Collections.shuffle(wordList);
 
+    public WordGrid(String[] words) {
+        gridWords = new String[5][5];
+        gridColors = new Color[5][5];
+        populateGrid(words);
+    }
+    
+    public void populateGrid(String[] words) {
+        ArrayList<String> wordList = new ArrayList<>(Arrays.asList(words));
+        Collections.shuffle(wordList);
+        
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                gridWords[i][j] = wordList.get(i * 5 + j);
+                gridWords[i][j] = wordList.get(i*5 + j);
             }
         }
     }
-    */
+
     
     public void initializeGrid() {
         ArrayList<String> wordList = new ArrayList<>(Arrays.asList(WORDS));
@@ -49,7 +53,28 @@ public class WordGrid implements Serializable{
         }
     }
     
+    //new code added: initializeGrid that takes an array of words 
 
+    public void initializeGrid(String[] newWords) {
+        // Make sure the input array has the right size
+        if(newWords.length != 25){
+            throw new IllegalArgumentException("The input array must contain exactly 25 words.");
+        }
+
+        words = new ArrayList<>(Arrays.asList(newWords));
+        Collections.shuffle(words);
+
+        int index = 0;
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                gridWords[i][j] = words.get(index++);
+            }
+        }
+    }
+    
+    //end of new code 
+
+    
     public void assignColors() {
         ArrayList<Color> colors = new ArrayList<>();
         Random random = new Random();

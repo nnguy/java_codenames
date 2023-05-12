@@ -11,7 +11,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-public class GridClient {
+public class Spymaster {
     private static JFrame frame;
     private static WordGrid wordGrid;
     private static Socket socket;
@@ -22,7 +22,7 @@ public class GridClient {
         connectToServer();
         initializeGridFromServer();
 
-        frame = new JFrame("Grid Client");
+        frame = new JFrame("Codenames - Spymasters Only");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());

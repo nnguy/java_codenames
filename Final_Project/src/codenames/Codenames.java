@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class GridServer {
+public class Codenames {
     private static JFrame frame;
     private static WordGrid wordGrid;
     private static ServerSocket serverSocket;
@@ -29,10 +29,80 @@ public class GridServer {
     private static int consecutiveClicks; // Store the number of consecutive clicks of the current team's color
 
 
-
-
+    //new main method 
     public static void main(String[] args) {
-        wordGrid = new WordGrid();
+        frame = new JFrame("Codenames");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setLayout(new BorderLayout());
+        startMenu();
+    }
+    //startmenu method 
+    private static void startMenu() {
+        JLabel welcomeLabel = new JLabel("Welcome to Codenames! Please select an option.");
+        welcomeLabel.setFont(new Font(welcomeLabel.getFont().getName(), welcomeLabel.getFont().getStyle(), 20)); // set font size
+        welcomeLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+
+        JButton uploadButton = new JButton("Upload my own words");
+        uploadButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            int returnValue = chooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = chooser.getSelectedFile();
+                try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                    ArrayList<String> words = new ArrayList<>();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                    	
+                        //adding a debugging print line here 
+                    	//commenting this out because it appears that the words are correctly being parsed out of the file. 
+                        //System.out.println(line);
+                        
+                        words.add(line);
+
+                    }
+                    if(words.size() < 25) {
+                        // Show an error message
+                        JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        wordGrid = new WordGrid(words.toArray(new String[0]));
+     
+                        startGame();
+                    }
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+
+        JButton randomButton = new JButton("Use random words");
+        randomButton.addActionListener(e -> {
+            wordGrid = new WordGrid();
+            startGame();
+        });
+
+        JPanel menuPanel = new JPanel(new GridLayout(3, 1));
+        menuPanel.add(welcomeLabel);
+        menuPanel.add(uploadButton);
+        menuPanel.add(randomButton);
+
+        frame.add(menuPanel, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+    
+    //startgame method 
+
+    private static void startGame() {
+        frame.getContentPane().removeAll();
+        frame.repaint();
+        
+        //new code added: a little message prompting the user to run Spymaste r
+        JLabel messageLabel = new JLabel("Run Spymaster.java to begin the game!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
+        frame.add(messageLabel);
+        frame.validate(); // This will make the label appear immediately
+        //end of new code 
+        
         wordGrid.initializeGrid();
         wordGrid.assignColors();
         
@@ -53,7 +123,7 @@ public class GridServer {
             }
         }
         
-        frame = new JFrame("Grid Server");
+        frame = new JFrame("Codenames");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -108,8 +178,6 @@ public class GridServer {
         setupServer();
         receiveClue();
     }
-
-
     private static void setupServer() {
         try {
             serverSocket = new ServerSocket(8080);
