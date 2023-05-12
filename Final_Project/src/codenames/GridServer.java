@@ -18,19 +18,20 @@ public class GridServer {
     private static Socket clientSocket;
     private static JPanel gridPanel;
     private static JLabel clueLabel;
-    //added counters and the remianing word label 
     private static JLabel remainingWordsLabel; // New label to display remaining words
     private static int redRemaining; // Counter for remaining red words
     private static int blueRemaining; // Counter for remaining blue words
     private static ObjectInputStream inputStream;
-    //end of new code  
-    
+    private static JLabel turnLabel;
+    private static JButton passButton;
+    private static String currentTurn;
+
+
     public static void main(String[] args) {
         wordGrid = new WordGrid();
         wordGrid.initializeGrid();
         wordGrid.assignColors();
         
-        //new code added: keeping track of how many red and blue tiles remain 
         redRemaining = 0;
         blueRemaining = 0;
         for (int i = 0; i < 5; i++) {
@@ -43,7 +44,6 @@ public class GridServer {
                 }
             }
         }
-        //end of new code 
         
         frame = new JFrame("Grid Server");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,12 +55,40 @@ public class GridServer {
 
         frame.add(gridPanel, BorderLayout.CENTER);
         
-        //new code added: displaying how many red and blue tiles remain 
         remainingWordsLabel = new JLabel("Red Words Remaining: " + redRemaining + "     Blue Words Remaining: " + blueRemaining);
         remainingWordsLabel.setFont(new Font(remainingWordsLabel.getFont().getName(), remainingWordsLabel.getFont().getStyle(), 20)); // set font size
         remainingWordsLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
         frame.add(remainingWordsLabel, BorderLayout.NORTH); // add the label to the frame
-        //end of new code 
+        
+
+        turnLabel = new JLabel("");
+        turnLabel.setFont(new Font(turnLabel.getFont().getName(), turnLabel.getFont().getStyle(), 20)); // set font size
+        turnLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+
+        passButton = new JButton("Pass");
+        passButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                switchTurn();
+            }
+        });
+
+        JPanel turnPanel = new JPanel();
+        turnPanel.add(turnLabel);
+        turnPanel.add(passButton);
+        
+        //create a new panel to hold both labels 
+        JPanel northPanel = new JPanel(new GridLayout(2, 1)); // GridLayout to place components vertically
+        northPanel.add(remainingWordsLabel);
+        northPanel.add(turnPanel);
+
+
+        frame.add(northPanel, BorderLayout.NORTH);
+
+        int redCount = getRedCount();
+        int blueCount = getBlueCount();
+        currentTurn = redCount > blueCount ? "Red" : "Blue";
+        updateTurnLabel();
+
         
         clueLabel = new JLabel("Waiting for clue...");
         clueLabel.setFont(new Font(clueLabel.getFont().getName(), clueLabel.getFont().getStyle(), 20)); // set font size
@@ -72,6 +100,7 @@ public class GridServer {
         setupServer();
         receiveClue();
     }
+
 
     private static void setupServer() {
         try {
@@ -119,8 +148,46 @@ public class GridServer {
             }
         }
     }
+    
+    private static void updateTurnLabel() {
+        turnLabel.setText("It is " + currentTurn + "'s turn");
+    }
 
+    private static void switchTurn() {
+        if ("Red".equals(currentTurn)) {
+            currentTurn = "Blue";
+        } else {
+            currentTurn = "Red";
+        }
 
+        updateTurnLabel();
+    }
+
+    private static int getRedCount() {
+        int count = 0;
+        for (Color[] row : wordGrid.getGridColors()) {
+            for (Color color : row) {
+                if (color.equals(new Color(255, 171, 171, 255))) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private static int getBlueCount() {
+        int count = 0;
+        for (Color[] row : wordGrid.getGridColors()) {
+            for (Color color : row) {
+                if (color.equals(new Color(171, 171, 255, 255))) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    
     static class GridButtonListener implements ActionListener {
         int row;
         int col;
@@ -136,14 +203,14 @@ public class GridServer {
             Color cellColor = wordGrid.getGridColors()[row][col];
             source.setBackground(cellColor);
             
-            //new code added: updating the red counter and blue counters when clicked on 
+
             if (cellColor.equals(new Color(255, 171, 171, 255))) {
                 redRemaining--;
             } else if (cellColor.equals(new Color(171, 171, 255, 255))) {
                 blueRemaining--;
             }
             remainingWordsLabel.setText("Red Words Remaining: " + redRemaining + "     Blue Words Remaining: " + blueRemaining);
-            //end of new code 
+
         }
       
     }
