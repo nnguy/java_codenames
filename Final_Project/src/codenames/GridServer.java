@@ -198,7 +198,9 @@ public class GridServer {
         return count;
     }
 
+
     
+    //new GridButonListener class that contains turn switching and win conditions 
     static class GridButtonListener implements ActionListener {
         int row;
         int col;
@@ -230,7 +232,15 @@ public class GridServer {
                 } else {
                     switchTurn = true;
                 }
-            } else if (cellColor.equals(new Color(245, 245, 220))) { 
+            } else if (cellColor.equals(new Color(171, 171, 171, 255))) { // Dark gray color
+                if ("Red".equals(currentTurn)) {
+                    turnLabel.setText("Blue wins! Red revealed the assassin");
+                } else {
+                    turnLabel.setText("Red wins! Blue revealed the assassin");
+                }
+                endGame();
+                return;
+            } else { 
                 switchTurn = true;
             }
             remainingWordsLabel.setText("Red Words Remaining: " + redRemaining + "     Blue Words Remaining: " + blueRemaining);
@@ -239,8 +249,26 @@ public class GridServer {
                 switchTurn();
                 consecutiveClicks = 0; // reset the consecutive clicks
             }
+
+            if (redRemaining == 0) {
+                turnLabel.setText("Red wins! All of the Red codewords have been found");
+                endGame();
+            } else if (blueRemaining == 0) {
+                turnLabel.setText("Blue wins! All of the Blue codewords have been found");
+                endGame();
+            }
         }
       
+    }
+    
+    private static void endGame() {
+        Component[] components = gridPanel.getComponents();
+        for (Component component : components) {
+            if (component instanceof JButton) {
+                ((JButton) component).setEnabled(false);
+            }
+        }
+        passButton.setEnabled(false);
     }
         
 }
