@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class GridServer {
+public class Codenames {
     private static JFrame frame;
     private static WordGrid wordGrid;
     private static ServerSocket serverSocket;
@@ -29,93 +29,9 @@ public class GridServer {
     private static int consecutiveClicks; // Store the number of consecutive clicks of the current team's color
 
 
-
-
-    //rewriting the main method 
-    
-    /*
-    public static void main(String[] args) {
-        wordGrid = new WordGrid();
-        wordGrid.initializeGrid();
-        wordGrid.assignColors();
-        
-        redRemaining = 0;
-        blueRemaining = 0;
-        clueNumber = 0;
-        consecutiveClicks = 0;
-        
-        
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                Color color = wordGrid.getGridColors()[i][j];
-                if (color.equals(new Color(255, 171, 171, 255))) {
-                    redRemaining++;
-                } else if (color.equals(new Color(171, 171, 255, 255))) {
-                    blueRemaining++;
-                }
-            }
-        }
-        
-        frame = new JFrame("Grid Server");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
-        frame.setLayout(new BorderLayout());
-
-        gridPanel = new JPanel(new GridLayout(5, 5));
-        displayGrid();
-
-        frame.add(gridPanel, BorderLayout.CENTER);
-        
-        remainingWordsLabel = new JLabel("Red Words Remaining: " + redRemaining + "     Blue Words Remaining: " + blueRemaining);
-        remainingWordsLabel.setFont(new Font(remainingWordsLabel.getFont().getName(), remainingWordsLabel.getFont().getStyle(), 20)); // set font size
-        remainingWordsLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
-        frame.add(remainingWordsLabel, BorderLayout.NORTH); // add the label to the frame
-        
-
-        turnLabel = new JLabel("");
-        turnLabel.setFont(new Font(turnLabel.getFont().getName(), turnLabel.getFont().getStyle(), 20)); // set font size
-        turnLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
-
-        passButton = new JButton("Pass");
-        passButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                switchTurn();
-            }
-        });
-
-        JPanel turnPanel = new JPanel();
-        turnPanel.add(turnLabel);
-        turnPanel.add(passButton);
-        
-        //create a new panel to hold both labels 
-        JPanel northPanel = new JPanel(new GridLayout(2, 1)); // GridLayout to place components vertically
-        northPanel.add(remainingWordsLabel);
-        northPanel.add(turnPanel);
-
-
-        frame.add(northPanel, BorderLayout.NORTH);
-
-        int redCount = getRedCount();
-        int blueCount = getBlueCount();
-        currentTurn = redCount > blueCount ? "Red" : "Blue";
-        updateTurnLabel();
-
-        
-        clueLabel = new JLabel("Waiting for clue...");
-        clueLabel.setFont(new Font(clueLabel.getFont().getName(), clueLabel.getFont().getStyle(), 20)); // set font size
-        clueLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
-        frame.add(clueLabel, BorderLayout.SOUTH);
-
-        frame.setVisible(true);
-
-        setupServer();
-        receiveClue();
-    }
-    */
-
     //new main method 
     public static void main(String[] args) {
-        frame = new JFrame("Grid Server");
+        frame = new JFrame("Codenames");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -137,13 +53,20 @@ public class GridServer {
                     ArrayList<String> words = new ArrayList<>();
                     String line;
                     while ((line = reader.readLine()) != null) {
+                    	
+                        //adding a debugging print line here 
+                    	//commenting this out because it appears that the words are correctly being parsed out of the file. 
+                        //System.out.println(line);
+                        
                         words.add(line);
+
                     }
                     if(words.size() < 25) {
                         // Show an error message
                         JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words.", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         wordGrid = new WordGrid(words.toArray(new String[0]));
+     
                         startGame();
                     }
                 } catch (IOException ioException) {
@@ -172,10 +95,14 @@ public class GridServer {
     private static void startGame() {
         frame.getContentPane().removeAll();
         frame.repaint();
-        wordGrid.initializeGrid();
-        wordGrid.assignColors();
         
-        wordGrid = new WordGrid();
+        //new code added: a little message prompting the user to run Spymaste r
+        JLabel messageLabel = new JLabel("Run Spymaster.java to begin the game!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
+        frame.add(messageLabel);
+        frame.validate(); // This will make the label appear immediately
+        //end of new code 
+        
         wordGrid.initializeGrid();
         wordGrid.assignColors();
         
@@ -196,7 +123,7 @@ public class GridServer {
             }
         }
         
-        frame = new JFrame("Grid Server");
+        frame = new JFrame("Codenames");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
