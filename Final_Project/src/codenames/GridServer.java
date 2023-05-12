@@ -25,6 +25,10 @@ public class GridServer {
     private static JLabel turnLabel;
     private static JButton passButton;
     private static String currentTurn;
+    private static int clueNumber; // Store the last received clue number
+    private static int consecutiveClicks; // Store the number of consecutive clicks of the current team's color
+
+
 
 
     public static void main(String[] args) {
@@ -34,6 +38,10 @@ public class GridServer {
         
         redRemaining = 0;
         blueRemaining = 0;
+        clueNumber = 0;
+        consecutiveClicks = 0;
+        
+        
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 Color color = wordGrid.getGridColors()[i][j];
@@ -122,12 +130,15 @@ public class GridServer {
 
     private static void receiveClue() {
         new Thread(() -> {
-            while (true) {  // Add this line
+            while (true) {  
                 try {
                     String clue = (String) inputStream.readObject();
-                    int number = inputStream.readInt();
-
-                    clueLabel.setText("The clue is: " + clue + " " + number);
+                    
+                    
+                    clueNumber = inputStream.readInt();
+                    
+                    
+                    clueLabel.setText("The clue is: " + clue + " " + clueNumber); 
                 } catch (IOException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -203,14 +214,31 @@ public class GridServer {
             Color cellColor = wordGrid.getGridColors()[row][col];
             source.setBackground(cellColor);
             
-
+            boolean switchTurn = false;
+            
             if (cellColor.equals(new Color(255, 171, 171, 255))) {
                 redRemaining--;
+                if ("Red".equals(currentTurn)) {
+                    consecutiveClicks++;
+                } else {
+                    switchTurn = true;
+                }
             } else if (cellColor.equals(new Color(171, 171, 255, 255))) {
                 blueRemaining--;
+                if ("Blue".equals(currentTurn)) {
+                    consecutiveClicks++;
+                } else {
+                    switchTurn = true;
+                }
+            } else if (cellColor.equals(new Color(245, 245, 220))) { 
+                switchTurn = true;
             }
             remainingWordsLabel.setText("Red Words Remaining: " + redRemaining + "     Blue Words Remaining: " + blueRemaining);
 
+            if (consecutiveClicks == clueNumber + 1 || switchTurn) {
+                switchTurn();
+                consecutiveClicks = 0; // reset the consecutive clicks
+            }
         }
       
     }
