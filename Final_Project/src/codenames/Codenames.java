@@ -31,7 +31,7 @@ public class Codenames {
 
     //new main method 
     public static void main(String[] args) {
-        frame = new JFrame("Codenames");
+        frame = new JFrame("Codenames - Teams");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -39,11 +39,17 @@ public class Codenames {
     }
     //startmenu method 
     private static void startMenu() {
+    	Dimension preferredSize = new Dimension(100, 40);
+    	
         JLabel welcomeLabel = new JLabel("Welcome to Codenames! Please select an option.");
         welcomeLabel.setFont(new Font(welcomeLabel.getFont().getName(), welcomeLabel.getFont().getStyle(), 20)); // set font size
         welcomeLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+        
+        JLabel messageLabel = new JLabel("After choosing one of these options, run Spymaster.java to begin the game!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
 
-        JButton uploadButton = new JButton("Upload my own words");
+        JButton uploadButton = new JButton("Custom words! (Upload my own words - each word should be in a separate line)");
+        uploadButton.setPreferredSize(preferredSize);
         uploadButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
             int returnValue = chooser.showOpenDialog(null);
@@ -53,21 +59,17 @@ public class Codenames {
                     ArrayList<String> words = new ArrayList<>();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                    	
-                        //adding a debugging print line here 
-                    	//commenting this out because it appears that the words are correctly being parsed out of the file. 
-                        //System.out.println(line);
-                        
                         words.add(line);
 
                     }
                     if(words.size() < 25) {
                         // Show an error message
-                        JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words!", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         wordGrid = new WordGrid(words.toArray(new String[0]));
-     
-                        startGame();
+                        messageLabel.setVisible(true);
+                        startGame(words.toArray(new String[0]));
+                        //startGame();
                     }
                 } catch (IOException ioException) {
                     ioException.printStackTrace();
@@ -75,37 +77,42 @@ public class Codenames {
             }
         });
 
-        JButton randomButton = new JButton("Use random words");
+        JButton randomButton = new JButton("Any words! (Get words from a hardcoded dictionary of over 500 words)");
+        randomButton.setPreferredSize(preferredSize);
         randomButton.addActionListener(e -> {
             wordGrid = new WordGrid();
+            messageLabel.setVisible(true);
             startGame();
         });
 
-        JPanel menuPanel = new JPanel(new GridLayout(3, 1));
+        JPanel menuPanel = new JPanel(new GridLayout(4, 1));
         menuPanel.add(welcomeLabel);
         menuPanel.add(uploadButton);
         menuPanel.add(randomButton);
+        menuPanel.add(messageLabel);
 
         frame.add(menuPanel, BorderLayout.CENTER);
         frame.setVisible(true);
     }
     
-    //startgame method 
+    //startgame method for using built-in words 
 
     private static void startGame() {
         frame.getContentPane().removeAll();
         frame.repaint();
         
-        //new code added: a little message prompting the user to run Spymaste r
+
         JLabel messageLabel = new JLabel("Run Spymaster.java to begin the game!", SwingConstants.CENTER);
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
+        
+        
         frame.add(messageLabel);
         frame.validate(); // This will make the label appear immediately
-        //end of new code 
+        frame.repaint(); // Update the frame
         
         wordGrid.initializeGrid();
         wordGrid.assignColors();
-        
+
         redRemaining = 0;
         blueRemaining = 0;
         clueNumber = 0;
@@ -123,7 +130,8 @@ public class Codenames {
             }
         }
         
-        frame = new JFrame("Codenames");
+        //removing the new Jframe because I think it is preventing the messageLabel from appearing
+        //frame = new JFrame("Codenames");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
@@ -178,6 +186,96 @@ public class Codenames {
         setupServer();
         receiveClue();
     }
+    
+    //overload startGame with words array 
+    private static void startGame(String [] words) {
+        frame.getContentPane().removeAll();
+        frame.repaint();
+        
+
+        JLabel messageLabel = new JLabel("Run Spymaster.java to begin the game!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
+        
+        
+        frame.add(messageLabel);
+        frame.validate(); // This will make the label appear immediately
+        frame.repaint(); // Update the frame
+        
+        wordGrid.initializeGrid(words);
+        wordGrid.assignColors();
+
+        redRemaining = 0;
+        blueRemaining = 0;
+        clueNumber = 0;
+        consecutiveClicks = 0;
+        
+        
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                Color color = wordGrid.getGridColors()[i][j];
+                if (color.equals(new Color(255, 171, 171, 255))) {
+                    redRemaining++;
+                } else if (color.equals(new Color(171, 171, 255, 255))) {
+                    blueRemaining++;
+                }
+            }
+        }
+        
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setLayout(new BorderLayout());
+
+        gridPanel = new JPanel(new GridLayout(5, 5));
+        displayGrid();
+
+        frame.add(gridPanel, BorderLayout.CENTER);
+        
+        remainingWordsLabel = new JLabel("Red Words Remaining: " + redRemaining + "     Blue Words Remaining: " + blueRemaining);
+        remainingWordsLabel.setFont(new Font(remainingWordsLabel.getFont().getName(), remainingWordsLabel.getFont().getStyle(), 20)); 
+        remainingWordsLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+        frame.add(remainingWordsLabel, BorderLayout.NORTH); // add the label to the frame
+        
+
+        turnLabel = new JLabel("");
+        turnLabel.setFont(new Font(turnLabel.getFont().getName(), turnLabel.getFont().getStyle(), 20)); 
+        turnLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+
+        passButton = new JButton("Pass");
+        passButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                switchTurn();
+            }
+        });
+
+        JPanel turnPanel = new JPanel();
+        turnPanel.add(turnLabel);
+        turnPanel.add(passButton);
+        
+        //create a new panel to hold both labels 
+        JPanel northPanel = new JPanel(new GridLayout(2, 1)); // GridLayout to place components vertically
+        northPanel.add(remainingWordsLabel);
+        northPanel.add(turnPanel);
+
+
+        frame.add(northPanel, BorderLayout.NORTH);
+
+        int redCount = getRedCount();
+        int blueCount = getBlueCount();
+        currentTurn = redCount > blueCount ? "Red" : "Blue";
+        updateTurnLabel();
+
+        
+        clueLabel = new JLabel("Waiting for clue...");
+        clueLabel.setFont(new Font(clueLabel.getFont().getName(), clueLabel.getFont().getStyle(), 20)); // set font size
+        clueLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+        frame.add(clueLabel, BorderLayout.SOUTH);
+
+        frame.setVisible(true);
+
+        setupServer();
+        receiveClue();
+    }
+    
     private static void setupServer() {
         try {
             serverSocket = new ServerSocket(8080);
@@ -189,7 +287,7 @@ public class Codenames {
             ObjectOutputStream outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
             outputStream.writeObject(wordGrid);
             
-            inputStream = new ObjectInputStream(clientSocket.getInputStream());  // Add this line
+            inputStream = new ObjectInputStream(clientSocket.getInputStream());  
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -208,7 +306,10 @@ public class Codenames {
                     
                     clueLabel.setText("The clue is: " + clue + " " + clueNumber); 
                 } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                	//the IO exception occurs when the GridClient closes 
+                	System.exit(0);
+                	
                 }
             }
         }).start();
@@ -283,6 +384,7 @@ public class Codenames {
             JButton source = (JButton) e.getSource();
             Color cellColor = wordGrid.getGridColors()[row][col];
             source.setBackground(cellColor);
+            source.setEnabled(false); //make the button unclickable 
             
             boolean switchTurn = false;
             

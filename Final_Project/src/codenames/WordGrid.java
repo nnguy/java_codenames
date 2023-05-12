@@ -14,6 +14,7 @@ public class WordGrid implements Serializable{
     private ArrayList<String> words;
     private Color[][] gridColors;
     private String[][] gridWords;
+    ArrayList<String> wordList;
 
     public WordGrid() {
     	/*
@@ -31,7 +32,7 @@ public class WordGrid implements Serializable{
     }
     
     public void populateGrid(String[] words) {
-        ArrayList<String> wordList = new ArrayList<>(Arrays.asList(words));
+        wordList = new ArrayList<>(Arrays.asList(words));
         Collections.shuffle(wordList);
         
         for (int i = 0; i < 5; i++) {
@@ -43,7 +44,7 @@ public class WordGrid implements Serializable{
 
     
     public void initializeGrid() {
-        ArrayList<String> wordList = new ArrayList<>(Arrays.asList(WORDS));
+        wordList = new ArrayList<>(Arrays.asList(WORDS));
         Collections.shuffle(wordList);
         
         for (int i = 0; i < 5; i++) {
@@ -57,9 +58,11 @@ public class WordGrid implements Serializable{
 
     public void initializeGrid(String[] newWords) {
         // Make sure the input array has the right size
-        if(newWords.length != 25){
+        /*
+    	if(newWords.length != 25){
             throw new IllegalArgumentException("The input array must contain exactly 25 words.");
         }
+        */
 
         words = new ArrayList<>(Arrays.asList(newWords));
         Collections.shuffle(words);

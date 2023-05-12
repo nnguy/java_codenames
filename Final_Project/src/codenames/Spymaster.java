@@ -41,7 +41,7 @@ public class Spymaster {
     private static void connectToServer() {
     	try {
     	    socket = new Socket("localhost", 8080);
-    	    outputStream = new ObjectOutputStream(socket.getOutputStream()); // Add this line
+    	    outputStream = new ObjectOutputStream(socket.getOutputStream()); 
     	    System.out.println("Connected to server!");
     	} catch (IOException e) {
     	    e.printStackTrace();
