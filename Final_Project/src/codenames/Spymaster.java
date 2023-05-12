@@ -11,7 +11,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-public class GridClient {
+public class Spymaster {
     private static JFrame frame;
     private static WordGrid wordGrid;
     private static Socket socket;
@@ -41,7 +41,7 @@ public class GridClient {
     private static void connectToServer() {
     	try {
     	    socket = new Socket("localhost", 8080);
-    	    outputStream = new ObjectOutputStream(socket.getOutputStream()); // Add this line
+    	    outputStream = new ObjectOutputStream(socket.getOutputStream()); 
     	    System.out.println("Connected to server!");
     	} catch (IOException e) {
     	    e.printStackTrace();
