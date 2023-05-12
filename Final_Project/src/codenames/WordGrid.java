@@ -23,21 +23,25 @@ public class WordGrid implements Serializable{
         gridWords = new String[5][5];
     }
 
-    //old initializeGrid - may be deleted 
-    /*
-    public void initializeGrid() {
-        ArrayList<String> wordList = new ArrayList<>();
-        Collections.addAll(wordList, WORDS);
-        Collections.shuffle(wordList);
 
+    //new code added - a constructor and a method for adding your own words 
+    public WordGrid(String[] words) {
+        gridWords = new String[5][5];
+        gridColors = new Color[5][5];
+        populateGrid(words);
+    }
+    
+    public void populateGrid(String[] words) {
+        ArrayList<String> wordList = new ArrayList<>(Arrays.asList(words));
+        Collections.shuffle(wordList);
+        
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                gridWords[i][j] = wordList.get(i * 5 + j);
+                gridWords[i][j] = wordList.get(i*5 + j);
             }
         }
     }
-    */
-    
+    //end of new code 
     public void initializeGrid() {
         ArrayList<String> wordList = new ArrayList<>(Arrays.asList(WORDS));
         Collections.shuffle(wordList);

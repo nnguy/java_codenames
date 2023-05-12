@@ -31,6 +31,9 @@ public class GridServer {
 
 
 
+    //rewriting the main method 
+    
+    /*
     public static void main(String[] args) {
         wordGrid = new WordGrid();
         wordGrid.initializeGrid();
@@ -108,8 +111,146 @@ public class GridServer {
         setupServer();
         receiveClue();
     }
+    */
+
+    //new main method 
+    public static void main(String[] args) {
+        frame = new JFrame("Grid Server");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setLayout(new BorderLayout());
+        startMenu();
+    }
+    //startmenu method 
+    private static void startMenu() {
+        JLabel welcomeLabel = new JLabel("Welcome to Codenames! Please select an option.");
+        welcomeLabel.setFont(new Font(welcomeLabel.getFont().getName(), welcomeLabel.getFont().getStyle(), 20)); // set font size
+        welcomeLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+
+        JButton uploadButton = new JButton("Upload my own words");
+        uploadButton.addActionListener(e -> {
+            JFileChooser chooser = new JFileChooser();
+            int returnValue = chooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = chooser.getSelectedFile();
+                try (BufferedReader reader = new BufferedReader(new FileReader(selectedFile))) {
+                    ArrayList<String> words = new ArrayList<>();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        words.add(line);
+                    }
+                    if(words.size() < 25) {
+                        // Show an error message
+                        JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        wordGrid = new WordGrid(words.toArray(new String[0]));
+                        startGame();
+                    }
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            }
+        });
+
+        JButton randomButton = new JButton("Use random words");
+        randomButton.addActionListener(e -> {
+            wordGrid = new WordGrid();
+            startGame();
+        });
+
+        JPanel menuPanel = new JPanel(new GridLayout(3, 1));
+        menuPanel.add(welcomeLabel);
+        menuPanel.add(uploadButton);
+        menuPanel.add(randomButton);
+
+        frame.add(menuPanel, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+    
+    //startgame method 
+
+    private static void startGame() {
+        frame.getContentPane().removeAll();
+        frame.repaint();
+        wordGrid.initializeGrid();
+        wordGrid.assignColors();
+        
+        wordGrid = new WordGrid();
+        wordGrid.initializeGrid();
+        wordGrid.assignColors();
+        
+        redRemaining = 0;
+        blueRemaining = 0;
+        clueNumber = 0;
+        consecutiveClicks = 0;
+        
+        
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                Color color = wordGrid.getGridColors()[i][j];
+                if (color.equals(new Color(255, 171, 171, 255))) {
+                    redRemaining++;
+                } else if (color.equals(new Color(171, 171, 255, 255))) {
+                    blueRemaining++;
+                }
+            }
+        }
+        
+        frame = new JFrame("Grid Server");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setLayout(new BorderLayout());
+
+        gridPanel = new JPanel(new GridLayout(5, 5));
+        displayGrid();
+
+        frame.add(gridPanel, BorderLayout.CENTER);
+        
+        remainingWordsLabel = new JLabel("Red Words Remaining: " + redRemaining + "     Blue Words Remaining: " + blueRemaining);
+        remainingWordsLabel.setFont(new Font(remainingWordsLabel.getFont().getName(), remainingWordsLabel.getFont().getStyle(), 20)); // set font size
+        remainingWordsLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+        frame.add(remainingWordsLabel, BorderLayout.NORTH); // add the label to the frame
+        
+
+        turnLabel = new JLabel("");
+        turnLabel.setFont(new Font(turnLabel.getFont().getName(), turnLabel.getFont().getStyle(), 20)); // set font size
+        turnLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+
+        passButton = new JButton("Pass");
+        passButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                switchTurn();
+            }
+        });
+
+        JPanel turnPanel = new JPanel();
+        turnPanel.add(turnLabel);
+        turnPanel.add(passButton);
+        
+        //create a new panel to hold both labels 
+        JPanel northPanel = new JPanel(new GridLayout(2, 1)); // GridLayout to place components vertically
+        northPanel.add(remainingWordsLabel);
+        northPanel.add(turnPanel);
 
 
+        frame.add(northPanel, BorderLayout.NORTH);
+
+        int redCount = getRedCount();
+        int blueCount = getBlueCount();
+        currentTurn = redCount > blueCount ? "Red" : "Blue";
+        updateTurnLabel();
+
+        
+        clueLabel = new JLabel("Waiting for clue...");
+        clueLabel.setFont(new Font(clueLabel.getFont().getName(), clueLabel.getFont().getStyle(), 20)); // set font size
+        clueLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+        frame.add(clueLabel, BorderLayout.SOUTH);
+
+        frame.setVisible(true);
+
+        setupServer();
+        receiveClue();
+    }
     private static void setupServer() {
         try {
             serverSocket = new ServerSocket(8080);
