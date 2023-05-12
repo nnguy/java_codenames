@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class Codenames {
+public class GridServer {
     private static JFrame frame;
     private static WordGrid wordGrid;
     private static ServerSocket serverSocket;
@@ -39,11 +39,17 @@ public class Codenames {
     }
     //startmenu method 
     private static void startMenu() {
+    	Dimension preferredSize = new Dimension(100, 40);
+    	
         JLabel welcomeLabel = new JLabel("Welcome to Codenames! Please select an option.");
         welcomeLabel.setFont(new Font(welcomeLabel.getFont().getName(), welcomeLabel.getFont().getStyle(), 20)); // set font size
         welcomeLabel.setHorizontalAlignment(JLabel.CENTER); // center the text
+        
+        JLabel messageLabel = new JLabel("After choosing one of these options, run Spymaster.java to begin the game!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
 
         JButton uploadButton = new JButton("Upload my own words");
+        uploadButton.setPreferredSize(preferredSize);
         uploadButton.addActionListener(e -> {
             JFileChooser chooser = new JFileChooser();
             int returnValue = chooser.showOpenDialog(null);
@@ -53,11 +59,6 @@ public class Codenames {
                     ArrayList<String> words = new ArrayList<>();
                     String line;
                     while ((line = reader.readLine()) != null) {
-                    	
-                        //adding a debugging print line here 
-                    	//commenting this out because it appears that the words are correctly being parsed out of the file. 
-                        //System.out.println(line);
-                        
                         words.add(line);
 
                     }
@@ -66,7 +67,7 @@ public class Codenames {
                         JOptionPane.showMessageDialog(frame, "The file must contain at least 25 words.", "Error", JOptionPane.ERROR_MESSAGE);
                     } else {
                         wordGrid = new WordGrid(words.toArray(new String[0]));
-     
+                        messageLabel.setVisible(true);
                         startGame();
                     }
                 } catch (IOException ioException) {
@@ -76,15 +77,18 @@ public class Codenames {
         });
 
         JButton randomButton = new JButton("Use random words");
+        randomButton.setPreferredSize(preferredSize);
         randomButton.addActionListener(e -> {
             wordGrid = new WordGrid();
+            messageLabel.setVisible(true);
             startGame();
         });
 
-        JPanel menuPanel = new JPanel(new GridLayout(3, 1));
+        JPanel menuPanel = new JPanel(new GridLayout(4, 1));
         menuPanel.add(welcomeLabel);
         menuPanel.add(uploadButton);
         menuPanel.add(randomButton);
+        menuPanel.add(messageLabel);
 
         frame.add(menuPanel, BorderLayout.CENTER);
         frame.setVisible(true);
@@ -96,6 +100,8 @@ public class Codenames {
         frame.getContentPane().removeAll();
         frame.repaint();
         
+        //old code 
+        /*
         //new code added: a little message prompting the user to run Spymaste r
         JLabel messageLabel = new JLabel("Run Spymaster.java to begin the game!", SwingConstants.CENTER);
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
@@ -105,7 +111,20 @@ public class Codenames {
         
         wordGrid.initializeGrid();
         wordGrid.assignColors();
+        */
         
+
+        JLabel messageLabel = new JLabel("Run Spymaster.java to begin the game!", SwingConstants.CENTER);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), messageLabel.getFont().getStyle(), 20)); // set font size
+        
+        
+        frame.add(messageLabel);
+        frame.validate(); // This will make the label appear immediately
+        frame.repaint(); // Update the frame
+        
+        wordGrid.initializeGrid();
+        wordGrid.assignColors();
+
         redRemaining = 0;
         blueRemaining = 0;
         clueNumber = 0;
@@ -123,7 +142,8 @@ public class Codenames {
             }
         }
         
-        frame = new JFrame("Codenames");
+        //removing the new Jframe because I think it is preventing the messageLabel from appearing
+        //frame = new JFrame("Codenames");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());

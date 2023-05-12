@@ -11,7 +11,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-public class Spymaster {
+public class GridClient {
     private static JFrame frame;
     private static WordGrid wordGrid;
     private static Socket socket;
